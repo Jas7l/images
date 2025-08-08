@@ -1,26 +1,29 @@
 import dataclasses as dc
-import enum
 import typing
 from datetime import datetime
 
 import sqlalchemy as sa
 
-from base_module.base_models import BaseOrmMappedModel
+from base_module.base_models import BaseOrmMappedModel, ValuedEnum
 
-SCHEMA_NAME = 'external_module'
+SCHEMA_NAME = 'image_tasks'
 
-class TaskStatus(enum.Enum):
+class TaskStatus(ValuedEnum):
     """."""
     NEW = "new"
     PROCESSING = "processing"
     ERROR = "error"
     DONE = "done"
 
+    def __json__(self):
+        return self.value
+
 @dc.dataclass
 class ProcessingTask(BaseOrmMappedModel):
     """."""
 
     __tablename__ = "image_tasks"
+    __table_args__ = {'schema': SCHEMA_NAME}
 
     task_id: int = dc.field(
         default=None,
@@ -38,7 +41,7 @@ class ProcessingTask(BaseOrmMappedModel):
             sa.DateTime, server_default=sa.func.now(), onupdate=sa.func.now()
         )}
     )
-    process_status: str = dc.field(
+    process_status: TaskStatus = dc.field(
         default=TaskStatus.NEW,
         metadata={
             'sa': sa.Column(
@@ -61,7 +64,7 @@ class ProcessingTask(BaseOrmMappedModel):
     )
     algorithm_params: dict = dc.field(
         default=None,
-        metadata={"sa": sa.Column(sa.DictType(), nullable=False)}
+        metadata={"sa": sa.Column(sa.JSON, nullable=False)}
     )
     process_time: int = dc.field(
         default=0,

@@ -1,5 +1,5 @@
 import dataclasses as dc
-import typing as t
+from typing import Any
 
 import pika
 import sqlalchemy as sa
@@ -10,7 +10,6 @@ from base_module.base_models import (
     ModuleException,
     ClassesLoggerAdapter
 )
-
 from base_module.models import TaskIdentMessageModel
 from base_module.services import RabbitService
 from models import ProcessingTask
@@ -20,7 +19,6 @@ from models import ProcessingTask
 class CreationModel(Model):
     """."""
 
-    task_id: int = dc.field()
     input_file_id: int = dc.field()
     algorithm: str = dc.field()
     algorithm_params: dict = dc.field()
@@ -39,14 +37,13 @@ class TasksService:
         self._pg = pg_connection
         self._logger = ClassesLoggerAdapter.create(self)
 
-    def create_task(self, data) -> ProcessingTask:
+    def create_task(self, data) -> dict:
         """."""
 
         data = CreationModel.load(data)
 
         task = (
             ProcessingTask(
-                task_id=data.task_id,
                 input_file_id=data.input_file_id,
                 algorithm=data.algorithm,
                 algorithm_params=data.algorithm_params,
@@ -55,51 +52,37 @@ class TasksService:
 
         with self._pg.begin():
             self._pg.add(task)
+            self._pg.flush()
+            task_id = task.task_id
 
-        task = task.reload()
         message = TaskIdentMessageModel.lazy_load(
-                TaskIdentMessageModel.T(task.task_id)
-        )
+            TaskIdentMessageModel.T(task_id))
+        message_dict = message.dump()
 
         published = self._rabbit.publish(
-            message, properties=pika.BasicProperties()
+            message_dict, properties=pika.BasicProperties()
         )
         if published:
-            return task
+            return task.dump()
 
         raise ModuleException(
             'Не удалось отправить сообщения об обработке задач'
         )
 
-    def get_all(self, map_id: int = None) -> list[ProcessingTask]:
+    def get_all(self) -> list[dict[str, Any]]:
         """."""
         with self._pg.begin():
-            q = self._pg.query(ProcessingTask).filter(
-                sa_operator.eq(
-                    ProcessingTask.project,
-                    self._oms.auth.get_request_session().project
-                )
-            )
-            if map_id:
-                q = q.filter(sa_operator.eq(ProcessingTask.map_id, map_id))
+            q = self._pg.query(ProcessingTask)
 
-            q = q.order_by(sa.desc(ProcessingTask.created_at))
-            return q.all()
+            q = q.order_by(sa.desc(ProcessingTask.created_date))
+            tasks = q.all()
+            return [task.dump() for task in tasks]
 
-    def get(self, task_id: int) -> ProcessingTask:
+    def get(self, task_id: int) -> dict[str, Any]:
         with self._pg.begin():
             task: ProcessingTask = self._pg.query(
-                ProcessingTask
-            ).filter(
-                sa.and_(
-                    sa_operator.eq(
-                        ProcessingTask.project,
-                        self._oms.auth.get_request_session().project
-                    ),
-                    sa_operator.eq(ProcessingTask.task_id, task_id)
-                )
-            ).one_or_none()
+                ProcessingTask).get(task_id)
             if task:
-                return task
+                return task.dump()
 
         raise ModuleException('Задача не найдена', code=404)

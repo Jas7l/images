@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:15
-    container_name: postgres_container
+    container_name: my_container
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -16,7 +16,7 @@ services:
   files:
     image: files:1.0.1
     ports:
-      - "8000:8000"
+      - "8020:8000"
     volumes:
       - ./storage:/app/storage
       - ./config.yaml:/config.yaml
@@ -37,13 +37,35 @@ services:
   images:
     image: images:1.0.1
     ports:
-      - "8000:8001"
+      - "8030:8000"
     volumes:
-      - ./tmp:./tmp
-      - ./config.yaml:./config.yaml
+      - ./tmp:/app/tmp
+      - ./config.yaml:/config.yaml
     networks:
       - backend-network
     restart: always
+
+  rabbit:
+    image: rabbitmq:3-management
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    networks:
+      - backend-network
+
+  task-worker:
+    image: images:1.0.1
+    restart: always
+    command: python -m scripts.tasks_worker
+    volumes:
+      - ./tmp:/app/tmp
+      - ./config.yaml:/config.yaml
+    networks:
+      - backend-network
 
 networks:
   backend-network:

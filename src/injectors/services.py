@@ -1,7 +1,7 @@
 from base_module.services import RabbitService
 
 from config import config
-from services import TaskService
+from services import TasksService, TasksWorker
 from . import connections
 
 
