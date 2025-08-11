@@ -14,7 +14,7 @@ def tasks_service() -> TasksService:
     """."""
     return TasksService(
         rabbit=rabbit(),
-        pg_connection=connections.pg.acquire_session()
+        pg_connection=connections.pg.acquire_session(),
     )
 
 

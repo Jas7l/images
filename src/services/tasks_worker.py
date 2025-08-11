@@ -1,6 +1,7 @@
 import os.path
 import shutil
 from datetime import datetime
+from typing import Optional
 
 import requests
 from sqlalchemy.orm import Session as PGSession
@@ -37,18 +38,16 @@ class TasksWorker(BaseMule):
     def _handle(self, task: ProcessingTask):
         """Обработка задачи"""
         self._logger.info('Обработка задачи', extra={'task': task.task_id})
-        task = ProcessingTask.load(task.dump())
-
         temp_dir = self._work_dir(task.task_id)
         try:
             file_data = requests.get(
-                f"http://files/api/file/{task.input_file_id}"
+                f"http://files:8000/api/file/{task.input_file_id}"
             ).json()
             file_path = os.path.join(temp_dir,
                                      f"{file_data['name']}.{file_data['extension']}")
 
             with requests.get(
-                    f"http://files/api/file/{task.input_file_id}/download",
+                    f"http://files:8000/api/file/{task.input_file_id}/download",
                     stream=True
             ) as r, open(file_path, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=1024):
@@ -61,9 +60,7 @@ class TasksWorker(BaseMule):
                 input_file_path=file_path,
             )
 
-            self._update_status(task, TaskStatus.DONE)
-
-            return res
+            self._update_status(task, TaskStatus.DONE, res.get("id"))
 
         except Exception as e:
             self._logger.critical(
@@ -72,6 +69,7 @@ class TasksWorker(BaseMule):
                 extra={'e': e, 'task': task.task_id}
             )
             self._update_status(task, TaskStatus.ERROR)
+
         finally:
             shutil.rmtree(temp_dir, ignore_errors=True)
             self._logger.info(
@@ -79,15 +77,20 @@ class TasksWorker(BaseMule):
                 extra={'task': task.task_id}
             )
 
-    def _update_status(self, task: ProcessingTask, status: TaskStatus):
+    def _update_status(self,
+                       task: ProcessingTask,
+                       status: TaskStatus,
+                       output_file_id: Optional[int] = None):
         """Обновление статуса задачи"""
         task_id = task.task_id
         with self._pg.begin():
             task = self._pg.query(ProcessingTask).get(task_id)
+            if output_file_id:
+                task.output_file_id = output_file_id
             task.process_status = status
             updated = datetime.now()
-            task.duration = (updated - task.updated_at).total_seconds()
-            task.updated_at = updated
+            task.process_time = (updated - task.updated_at).total_seconds()
+            task.updated_date = updated
             self._logger.critical(
                 'Изменение статуса задачи',
                 extra={'task_id': task.task_id,

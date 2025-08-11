@@ -14,14 +14,15 @@ RUN apt update && \
         build-essential \
         libgdal-dev \
         gdal-bin \
+        proj-data \
     && locale-gen ru_RU && \
     locale-gen ru_RU.UTF-8 && \
     update-locale
 
 ENV CPLUS_INCLUDE_PATH=/usr/local/include/gdal
 ENV C_INCLUDE_PATH=/usr/local/include/gdal
-ENV PROJ_LIB=/usr/local/share/proj
-ENV GDAL_DATA=/usr/local/share/gdal
+ENV PROJ_LIB=/usr/share/proj
+ENV GDAL_DATA=/usr/share/gdal
 ENV LANG=ru_RU.UTF-8
 
 ENV LD_LIBRARY_PATH=/usr/local/lib

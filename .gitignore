@@ -7,3 +7,4 @@ venv/
 /pgadmin_data/
 /pgdata/
 **/config.yaml
+**/tmp/

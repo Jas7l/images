@@ -21,7 +21,7 @@ class BaseAlgorithm(ABC):
                 "fields": json.dumps(fields),
             }
             response = requests.post(
-            f"http://files/api/file", files=files, data=data
+            f"http://files:8000/api/file", files=files, data=data
             )
 
             response.raise_for_status()

@@ -6,7 +6,7 @@ rabbit:
   routing_key: image
   queue_name: image
 
-tmp_dir: /tmp
+tmp_dir: /app/tmp
 
 logging:
   root_log_level: 0

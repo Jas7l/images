@@ -97,30 +97,24 @@ class PgConnectionInj(metaclass=ThreadIsolatedSingleton):
             echo=self._conf.debug,
             query_cache_size=0
         )
-
-        # Создаем БД если не существует
         if not database_exists(engine.url):
             create_database(engine.url)
 
         schemas = self.__set_schemas()
 
-        with engine.begin() as connection:  # Используем engine.begin() для автоматического управления транзакцией
-            inspector = sa.inspect(
-                connection)  # Создаем инспектор для проверки схем
+        with engine.connect() as connection:
+            connection: sa.engine.base.Connection
+            with connection.begin():
+                dialect = engine.dialect
+                for schema in schemas:
+                    if not dialect.has_schema(connection, schema):  # noqa
+                        connection.execute(sa.schema.CreateSchema(schema))
 
-            for schema in schemas:
-                # Проверяем существование схемы через инспектор
-                if schema not in inspector.get_schema_names():
-                    connection.execute(sa.text(f'CREATE SCHEMA "{schema}"'))
+                for statement in self._init_statements or []:
+                    connection.execute(sa.text(statement))
 
-            # Выполняем дополнительные SQL-запросы если есть
-            for statement in self._init_statements or []:
-                connection.execute(sa.text(statement))
+                BaseOrmMappedModel.REGISTRY.metadata.create_all(connection)
 
-            # Создаем все таблицы
-            BaseOrmMappedModel.REGISTRY.metadata.create_all(connection)
-
-        # Настраиваем сессию
         session_fabric = sessionmaker(engine, expire_on_commit=False)
         self._pg = sa.orm.scoped_session(session_fabric)
 

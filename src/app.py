@@ -5,7 +5,7 @@ from base_module.base_models import setup_logging
 from base_module.services import TracingService
 from config import config
 from injectors.connections import pg
-from routers.tasks import tasks_bp
+from routers.tasks import images_bp
 
 def setup_app():
     current = flask.Flask(__name__)
@@ -16,7 +16,7 @@ def setup_app():
     return current
 
 app = setup_app()
-app.register_blueprint(tasks_bp)
+app.register_blueprint(images_bp)
 
 
 @app.errorhandler(ModuleException)
