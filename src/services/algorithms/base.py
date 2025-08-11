@@ -21,12 +21,13 @@ class BaseAlgorithm(ABC):
                 "fields": json.dumps(fields),
             }
             response = requests.post(
-            f"http://files:8000/api/file", files=files, data=data
+                f"http://files:8000/api/file", files=files, data=data
             )
 
             response.raise_for_status()
             return response.json()
 
     @abstractmethod
-    def run(self, algorithm: str, algorithm_params: dict, input_file_path: str):
+    def run(self, algorithm: str, algorithm_params: dict,
+            input_file_path: str):
         pass

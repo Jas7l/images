@@ -25,4 +25,3 @@ class ServiceConfig(Model):
 config: ServiceConfig = ServiceConfig.load(
     yaml.safe_load(open(os.getenv('YAML_PATH', "/config.yaml"))) or {}
 )
-

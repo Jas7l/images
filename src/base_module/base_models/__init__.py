@@ -1,4 +1,5 @@
 from .exception import ModuleException
+from .logger import LoggerConfig, ClassesLoggerAdapter, setup_logging
 from .model import (
     Model,
     ModelException,
@@ -7,7 +8,6 @@ from .model import (
     view,
     MetaModel
 )
-from .logger import LoggerConfig, ClassesLoggerAdapter, setup_logging
-from .mule import BaseMule
 from .config import PgConfig
+from .mule import BaseMule
 from .singletons import ThreadIsolatedSingleton, Singleton

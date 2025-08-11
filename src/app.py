@@ -7,6 +7,7 @@ from config import config
 from injectors.connections import pg
 from routers.tasks import images_bp
 
+
 def setup_app():
     current = flask.Flask(__name__)
     pg.setup(current)
@@ -14,6 +15,7 @@ def setup_app():
     setup_logging(config.logging)
 
     return current
+
 
 app = setup_app()
 app.register_blueprint(images_bp)

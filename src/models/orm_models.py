@@ -8,6 +8,7 @@ from base_module.base_models import BaseOrmMappedModel, ValuedEnum
 
 SCHEMA_NAME = 'image_tasks'
 
+
 class TaskStatus(ValuedEnum):
     """."""
     NEW = "new"
@@ -17,6 +18,7 @@ class TaskStatus(ValuedEnum):
 
     def __json__(self):
         return self.value
+
 
 @dc.dataclass
 class ProcessingTask(BaseOrmMappedModel):
@@ -70,5 +72,6 @@ class ProcessingTask(BaseOrmMappedModel):
         default=0,
         metadata={"sa": sa.Column(sa.Integer(), nullable=False)}
     )
+
 
 BaseOrmMappedModel.REGISTRY.mapped(ProcessingTask)

@@ -44,10 +44,12 @@ class TasksWorker(BaseMule):
                 f"http://files:8000/api/file/{task.input_file_id}"
             ).json()
             file_path = os.path.join(temp_dir,
-                                     f"{file_data['name']}.{file_data['extension']}")
+                                     f"{file_data['name']}."
+                                     f"{file_data['extension']}")
 
             with requests.get(
-                    f"http://files:8000/api/file/{task.input_file_id}/download",
+                    f"http://files:8000/api/file/"
+                    f"{task.input_file_id}/download",
                     stream=True
             ) as r, open(file_path, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=1024):
@@ -83,15 +85,18 @@ class TasksWorker(BaseMule):
                        output_file_id: Optional[int] = None):
         """Обновление статуса задачи"""
         task_id = task.task_id
+
         with self._pg.begin():
             task = self._pg.query(ProcessingTask).get(task_id)
+
             if output_file_id:
                 task.output_file_id = output_file_id
             task.process_status = status
             updated = datetime.now()
             task.process_time = (updated - task.updated_at).total_seconds()
             task.updated_date = updated
-            self._logger.critical(
+
+            self._logger.info(
                 'Изменение статуса задачи',
                 extra={'task_id': task.task_id,
                        'status': task.process_status.value}

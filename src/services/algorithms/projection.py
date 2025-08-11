@@ -2,11 +2,14 @@ import os
 
 from osgeo import gdal
 
+from base_module.base_models import ModuleException
 from .base import BaseAlgorithm
 
 
 class ProjectionAlgorithm(BaseAlgorithm):
-    def run(self, algorithm: str, algorithm_params: dict, input_file_path: str):
+    def run(self, algorithm: str,
+            algorithm_params: dict,
+            input_file_path: str):
         input_dir = os.path.dirname(input_file_path)
         new_name = algorithm_params.get("new_name", "Reprojection.tif")
         output_file_path = os.path.join(input_dir, new_name)
@@ -14,7 +17,8 @@ class ProjectionAlgorithm(BaseAlgorithm):
 
         dst_srs = algorithm_params.get("dstSRS")
         if not dst_srs:
-            raise ValueError("Обязательные параметры: 'dstSRS'")
+            raise ModuleException("Обязательные параметры: 'dstSRS'",
+                                  code=400)
 
         gdal.Warp(
             output_file_path,
