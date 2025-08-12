@@ -3,13 +3,12 @@ import shutil
 from datetime import datetime
 from typing import Optional
 
-import requests
 from sqlalchemy.orm import Session as PGSession
 
 from base_module.base_models import BaseMule, ClassesLoggerAdapter
 from base_module.base_models import ModuleException
 from base_module.models import TaskIdentMessageModel
-from base_module.services import RabbitService
+from base_module.services import RabbitService, FilesService
 from models.orm_models import ProcessingTask, TaskStatus
 from services.algorithms.alg_factory import AlgorithmFactory
 
@@ -27,6 +26,7 @@ class TasksWorker(BaseMule):
         self._rabbit = rabbit
         self._pg = pg_connection
         self._temp_dir = temp_dir
+        self._files = FilesService()
         self._logger = ClassesLoggerAdapter.create(self)
 
     def _work_dir(self, task_id: int) -> str:
@@ -40,20 +40,7 @@ class TasksWorker(BaseMule):
         self._logger.info('Обработка задачи', extra={'task': task.task_id})
         temp_dir = self._work_dir(task.task_id)
         try:
-            file_data = requests.get(
-                f"http://files:8000/api/file/{task.input_file_id}"
-            ).json()
-            file_path = os.path.join(temp_dir,
-                                     f"{file_data['name']}."
-                                     f"{file_data['extension']}")
-
-            with requests.get(
-                    f"http://files:8000/api/file/"
-                    f"{task.input_file_id}/download",
-                    stream=True
-            ) as r, open(file_path, 'wb') as f:
-                for chunk in r.iter_content(chunk_size=1024):
-                    f.write(chunk)
+            file_path = self._files.download_file(temp_dir, task)
 
             algorithm = AlgorithmFactory.get(task.algorithm)
             res = algorithm.run(
