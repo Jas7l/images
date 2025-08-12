@@ -23,6 +23,7 @@ class TasksWorker(BaseMule):
             self,
             rabbit: RabbitService,
             files: FilesService,
+            algorithm: AlgorithmFactory,
             pg_connection: PGSession,
             temp_dir: str,
     ):
@@ -31,6 +32,7 @@ class TasksWorker(BaseMule):
         self._pg = pg_connection
         self._temp_dir = temp_dir
         self._files = files
+        self._algorithm = algorithm
         self._logger = ClassesLoggerAdapter.create(self)
 
     def _work_dir(self, task_id: int) -> str:
@@ -46,7 +48,7 @@ class TasksWorker(BaseMule):
         try:
             file_path = self._files.download_file(temp_dir, task)
 
-            algorithm = AlgorithmFactory.get(task.algorithm)
+            algorithm = self._algorithm.get(task.algorithm)
             paths = algorithm.run(
                 algorithm=task.algorithm,
                 algorithm_params=task.algorithm_params,
