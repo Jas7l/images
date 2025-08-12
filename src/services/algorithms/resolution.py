@@ -30,6 +30,5 @@ class ResolutionAlgorithm(BaseAlgorithm):
             )
         )
 
-        res = self.send_file(output_file_path, save_path)
-
+        res = {"output_file_path": output_file_path, "save_path": save_path}
         return res

@@ -43,11 +43,14 @@ class TasksWorker(BaseMule):
             file_path = self._files.download_file(temp_dir, task)
 
             algorithm = AlgorithmFactory.get(task.algorithm)
-            res = algorithm.run(
+            paths = algorithm.run(
                 algorithm=task.algorithm,
                 algorithm_params=task.algorithm_params,
                 input_file_path=file_path,
             )
+            self._logger.critical(paths)
+            res = self._files.send_file(paths.get("output_file_path"),
+                                        paths.get("save_path"))
 
             self._update_status(task, TaskStatus.DONE, res.get("id"))
 
