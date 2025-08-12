@@ -5,12 +5,15 @@ from typing import Optional
 
 from sqlalchemy.orm import Session as PGSession
 
-from base_module.base_models import BaseMule, ClassesLoggerAdapter
-from base_module.base_models import ModuleException
+from base_module.base_models import (
+    BaseMule,
+    ClassesLoggerAdapter,
+    ModuleException
+)
 from base_module.models import TaskIdentMessageModel
 from base_module.services import RabbitService, FilesService
 from models.orm_models import ProcessingTask, TaskStatus
-from services.algorithms.alg_factory import AlgorithmFactory
+from services.algorithms import AlgorithmFactory
 
 
 class TasksWorker(BaseMule):
@@ -19,6 +22,7 @@ class TasksWorker(BaseMule):
     def __init__(
             self,
             rabbit: RabbitService,
+            files: FilesService,
             pg_connection: PGSession,
             temp_dir: str,
     ):
@@ -26,7 +30,7 @@ class TasksWorker(BaseMule):
         self._rabbit = rabbit
         self._pg = pg_connection
         self._temp_dir = temp_dir
-        self._files = FilesService()
+        self._files = files
         self._logger = ClassesLoggerAdapter.create(self)
 
     def _work_dir(self, task_id: int) -> str:
@@ -48,7 +52,7 @@ class TasksWorker(BaseMule):
                 algorithm_params=task.algorithm_params,
                 input_file_path=file_path,
             )
-            self._logger.critical(paths)
+
             res = self._files.send_file(paths.get("output_file_path"),
                                         paths.get("save_path"))
 

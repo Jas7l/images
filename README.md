@@ -77,6 +77,9 @@ services:
 networks:
   backend-network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16
 ```
 
 ### config.yaml
@@ -90,6 +93,7 @@ rabbit:
   queue_name: image
 
 tmp_dir: /app/tmp
+files_url: http://files:8000/api/file
 
 logging:
   root_log_level: 0
@@ -127,9 +131,9 @@ make run
 
 ## API
 
-### Изменение файла
+### Создание задачи по изменению файла
 
-`POST /api/images`
+`POST /api/tasks`
 
 **Запрос** `application/json`
 
@@ -150,8 +154,7 @@ make run
         // Новое разрешение
         "yRes": 10.0,
         "xRes": 10.0        
-    },
-    "input_file_path": "/app/storage/input_image.tif"
+    }
 }
 ```
 Где:
@@ -169,16 +172,18 @@ make run
     "algorithm": "projection",
     "algorithm_params": {
         "dstSRS": "EPSG:4326",
-        "new_name": "projection4326be1.tif",
-        "save_path": ""
+        "new_name": "projection4326.tif",
+        "save_path": "1",
+        "xRes": null,
+        "yRes": null
     },
-    "created_date": "2025-08-11T08:22:38.121707",
+    "created_date": "2025-08-12T11:14:28.279051",
     "input_file_id": 1,
     "output_file_id": null,
     "process_status": "new",
     "process_time": 0,
-    "task_id": 251,
-    "updated_date": "2025-08-11T08:22:38.121724"
+    "task_id": 266,
+    "updated_date": "2025-08-12T11:14:28.279063"
 }
 ```
 **Ошибки:**
@@ -187,7 +192,7 @@ make run
 
 ### Получение списка всех задач
 
-`GET /api/images`
+`GET /api/tasks`
 
 *Ответ* `application/json` `200 OK`
 
@@ -198,7 +203,9 @@ make run
         "algorithm_params": {
             "dstSRS": "EPSG:4326",
             "new_name": "projection4326be1.tif",
-            "save_path": ""
+            "save_path": "",
+            "xRes": null,
+            "yRes": null
         },
         "created_date": "2025-08-11T08:22:38.121707",
         "input_file_id": 1,
@@ -213,7 +220,7 @@ make run
 
 ### Получение информации о задаче
 
-`GET /api/images/<int:task_id>`
+`GET /api/tasks/<int:task_id>`
 
 Где:
 
@@ -227,7 +234,9 @@ make run
         "algorithm_params": {
             "dstSRS": "EPSG:4326",
             "new_name": "projection4326be1.tif",
-            "save_path": ""
+            "save_path": "",
+            "xRes": null,
+            "yRes": null
         },
         "created_date": "2025-08-11T08:22:38.121707",
         "input_file_id": 1,

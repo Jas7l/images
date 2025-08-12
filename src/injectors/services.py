@@ -1,4 +1,4 @@
-from base_module.services import RabbitService
+from base_module.services import RabbitService, FilesService
 
 from config import config
 from services import TasksService, TasksWorker
@@ -8,6 +8,13 @@ from . import connections
 def rabbit() -> RabbitService:
     """."""
     return RabbitService(config.rabbit)
+
+
+def files() -> FilesService:
+    """."""
+    return FilesService(
+        files_url=config.files_url
+    )
 
 
 def tasks_service() -> TasksService:
@@ -22,6 +29,7 @@ def tasks_mule() -> TasksWorker:
     """."""
     return TasksWorker(
         rabbit=rabbit(),
+        files=files(),
         pg_connection=connections.pg.acquire_session(),
         temp_dir=config.tmp_dir
     )

@@ -7,6 +7,7 @@ rabbit:
   queue_name: image
 
 tmp_dir: /app/tmp
+files_url: http://files:8000/api/file
 
 logging:
   root_log_level: 0

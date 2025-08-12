@@ -18,8 +18,10 @@ class ResolutionAlgorithm(BaseAlgorithm):
         yres = algorithm_params.get("yRes")
         xres = algorithm_params.get("xRes")
         if not yres or not xres:
-            raise ModuleException("Обязательные параметры: 'yRes', 'xRes'",
-                                  code=400)
+            raise ModuleException(
+                "Обязательные параметры: 'yRes', 'xRes'",
+                code=400
+            )
 
         gdal.Warp(
             output_file_path,

@@ -19,6 +19,7 @@ class ServiceConfig(Model):
     rabbit: RabbitFullConfig = dc.field()
     pg: PgConfig
     tmp_dir: str = dc.field(default='/tmp')
+    files_url: str = dc.field(default=None)
     logging: LoggerConfig = dc.field(default=None)
 
 

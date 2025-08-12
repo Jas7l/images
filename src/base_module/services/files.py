@@ -11,10 +11,11 @@ class FilesService:
     """Сервис отправки запросов модуля files"""
 
     def __init__(
-            self
+            self,
+            files_url: str
     ):
         """Инициализация сервиса"""
-        self.url = "http://files:8000/api/file"
+        self.url = files_url
         self._logger = ClassesLoggerAdapter.create(self)
 
     def get_file(self, file_id: int):
