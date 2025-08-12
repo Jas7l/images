@@ -16,23 +16,12 @@ from models import ProcessingTask
 
 
 @dc.dataclass
-class AlgorithmParams(Model):
-    """."""
-    new_name: str = dc.field()
-    save_path: str = dc.field()
-
-    dstSRS: Optional[str] = dc.field(default=None)
-    xRes: Optional[str] = dc.field(default=None)
-    yRes: Optional[str] = dc.field(default=None)
-
-
-@dc.dataclass
 class CreationModel(Model):
     """."""
 
     input_file_id: int = dc.field()
     algorithm: str = dc.field()
-    algorithm_params: AlgorithmParams = dc.field()
+    algorithm_params: dict = dc.field()
 
 
 class TasksService:
@@ -57,7 +46,7 @@ class TasksService:
             ProcessingTask(
                 input_file_id=data.input_file_id,
                 algorithm=data.algorithm,
-                algorithm_params=data.algorithm_params.dump(),
+                algorithm_params=data.algorithm_params,
             )
         )
 

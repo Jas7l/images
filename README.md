@@ -145,10 +145,6 @@ make run
     "algorithm": "projection",
     // Параметры алгоритма
     "algorithm_params": {
-        // Имя файла в хранилище после обработки
-        "new_name": "reprojected_image.tif",
-        // Относительный путь нового файла в хранилище
-        "save_path": "/processed",
         // Целевая система координат
         "dstSRS": "EPSG:3857",
         // Новое разрешение
@@ -171,19 +167,15 @@ make run
 {
     "algorithm": "projection",
     "algorithm_params": {
-        "dstSRS": "EPSG:4326",
-        "new_name": "projection4326.tif",
-        "save_path": "1",
-        "xRes": null,
-        "yRes": null
+        "dstSRS": "EPSG:4326"
     },
-    "created_date": "2025-08-12T11:14:28.279051",
+    "created_date": "2025-08-12T12:40:12.340268",
     "input_file_id": 1,
     "output_file_id": null,
     "process_status": "new",
     "process_time": 0,
-    "task_id": 266,
-    "updated_date": "2025-08-12T11:14:28.279063"
+    "task_id": 271,
+    "updated_date": "2025-08-12T12:40:12.340279"
 }
 ```
 **Ошибки:**
@@ -199,22 +191,19 @@ make run
 ```json5
 [
     {
-        "algorithm": "projection",
-        "algorithm_params": {
-            "dstSRS": "EPSG:4326",
-            "new_name": "projection4326be1.tif",
-            "save_path": "",
-            "xRes": null,
-            "yRes": null
+        "algorithm": "resolution",
+        "algorithm_params": { 
+            "xRes": 10000.0,
+            "yRes": 10000.0
         },
-        "created_date": "2025-08-11T08:22:38.121707",
+        "created_date": "2025-08-12T12:40:25.378138",
         "input_file_id": 1,
-        "output_file_id": 6,
+        "output_file_id": 18,
         "process_status": "done",
-        "process_time": 6,
-        "task_id": 251,
-        "updated_date": "2025-08-11T08:22:43.834541"
-    }
+        "process_time": 0,
+        "task_id": 272,
+        "updated_date": "2025-08-12T12:40:25.818976"
+    },
 ]
 ```
 
@@ -230,21 +219,17 @@ make run
 
 ```json5
 {
-        "algorithm": "projection",
-        "algorithm_params": {
-            "dstSRS": "EPSG:4326",
-            "new_name": "projection4326be1.tif",
-            "save_path": "",
-            "xRes": null,
-            "yRes": null
-        },
-        "created_date": "2025-08-11T08:22:38.121707",
-        "input_file_id": 1,
-        "output_file_id": 6,
-        "process_status": "done",
-        "process_time": 6,
-        "task_id": 251,
-        "updated_date": "2025-08-11T08:22:43.834541"
+    "algorithm": "projection",
+    "algorithm_params": {
+        "dstSRS": "EPSG:4326"
+    },
+    "created_date": "2025-08-12T12:40:12.340268",
+    "input_file_id": 1,
+    "output_file_id": 17,
+    "process_status": "done",
+    "process_time": 1,
+    "task_id": 271,
+    "updated_date": "2025-08-12T12:40:13.097375"
 }
 ```
 **Ошибки:**
