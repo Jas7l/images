@@ -8,37 +8,32 @@ from .base import BaseAlgorithm
 
 @dc.dataclass
 class AlgorithmParams(Model):
-    yres: float = dc.field()
-    xres: float = dc.field()
+    yRes: float = dc.field()
+    xRes: float = dc.field()
 
 
 class ResolutionAlgorithm(BaseAlgorithm):
     def run(self, algorithm: str,
             algorithm_params: dict,
             input_file_path: str):
-        resolution_params = AlgorithmParams(
-            yres=algorithm_params.get("yRes"),
-            xres=algorithm_params.get("xRes"),
-        )
-        yres = resolution_params.yres
-        xres = resolution_params.xres
-        if not yres or not xres:
+        resolution_params = AlgorithmParams.load(algorithm_params)
+        yRes = resolution_params.yRes
+        xRes = resolution_params.xRes
+        if not yRes or not xRes:
             raise ModuleException(
                 "Обязательные параметры: 'yRes', 'xRes'",
                 code=400
             )
 
         output_file_path = self.generate_output_path(input_file_path)
-        save_path = "resolution"
 
         gdal.Warp(
             output_file_path,
             input_file_path,
             options=gdal.WarpOptions(
-                xRes=xres,
-                yRes=yres
+                xRes=xRes,
+                yRes=yRes
             )
         )
 
-        res = {"output_file_path": output_file_path, "save_path": save_path}
-        return res
+        return output_file_path

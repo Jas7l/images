@@ -6,5 +6,6 @@ venv/
 **/storage/
 /pgadmin_data/
 /pgdata/
-**/config.yaml
+config.yaml
 **/tmp/
+docker-compose.yml
